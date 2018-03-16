@@ -334,6 +334,27 @@ namespace Org {
 			property String^ Sdp;
 		};
 
+		/// <summary>
+		/// Stores OfferAnswerOptions.
+		/// See: https://www.w3.org/TR/webrtc/#idl-def-rtcofferansweroptions 
+		/// </summary>
+		public ref class RTCOfferAnswerOptions sealed{
+		private:
+		public:
+			RTCOfferAnswerOptions();
+			RTCOfferAnswerOptions(
+				int offer_to_receive_video,
+				int offer_to_receive_audio,
+				bool voice_activity_detection,
+				bool ice_restart,
+				bool use_rtp_mux);
+			property int OfferToReceiveVideo;
+			property int OfferToReceiveAudio;
+			property bool VoiceActivityDetection;
+			property bool IceRestart;
+			property bool UseRtpMux ;
+		};
+		
 		// Events and delegates
 		// ------------------
 		/// <summary>
@@ -490,7 +511,6 @@ namespace Org {
 			/// </summary>
 			event RTCStatsReportsReadyEventDelegate^ OnRTCStatsReportsReady;
 
-
 			/// <summary>
 			/// Generates a blob of SDP that contains an RFC 3264 offer with the
 			///  supported configurations for the session, including descriptions of
@@ -500,6 +520,16 @@ namespace Org {
 			/// </summary>
 			/// <returns></returns>
 			IAsyncOperation<RTCSessionDescription^>^ CreateOffer();
+
+			/// <summary>
+			/// Generates a blob of SDP that contains an RFC 3264 offer with the
+			///  supported configurations for the session, including descriptions of
+			/// the local MediaStreams attached to this <see cref="RTCPeerConnection"/>,
+			/// the codec/RTP/RTCP options supported by this implementation, and any
+			/// candidates that have been gathered by the ICE Agent.
+			/// </summary>
+			/// <returns></returns>
+			IAsyncOperation<RTCSessionDescription^>^ CreateOffer(RTCOfferAnswerOptions^ offerAnswerOptions);
 
 			/// <summary>
 			/// Generates an SDP answer with the supported configuration for the

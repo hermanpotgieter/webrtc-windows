@@ -125,6 +125,23 @@ namespace Org {
 			Sdp = sdp;
 		}
 
+		RTCOfferAnswerOptions::RTCOfferAnswerOptions() {
+		}
+
+		RTCOfferAnswerOptions::RTCOfferAnswerOptions(
+				int offer_to_receive_video,
+				int offer_to_receive_audio,
+				bool voice_activity_detection,
+				bool ice_restart,
+				bool use_rtp_mux
+		) {
+			OfferToReceiveVideo = offer_to_receive_video;
+			OfferToReceiveAudio = offer_to_receive_audio;
+			VoiceActivityDetection = voice_activity_detection;
+			IceRestart = ice_restart;
+			UseRtpMux = use_rtp_mux;
+		}
+
 		RTCPeerConnection::RTCPeerConnection(RTCConfiguration^ configuration)
 			: _observer(new GlobalObserver()) {
 			webrtc::PeerConnectionInterface::RTCConfiguration cc_configuration;
@@ -209,11 +226,14 @@ namespace Org {
 		}
 
 		IAsyncOperation<RTCSessionDescription^>^ RTCPeerConnection::CreateOffer() {
+			return RTCPeerConnection::CreateOffer(nullptr);
+		}
+
+		IAsyncOperation<RTCSessionDescription^>^ RTCPeerConnection::CreateOffer(RTCOfferAnswerOptions^ offerAnswerOptions) {
 			return CreateCallbackBridge
 				<webrtc::SessionDescriptionInterface*, RTCSessionDescription^>(
-					[this](Concurrency::task_completion_event
+					[this, offerAnswerOptions](Concurrency::task_completion_event
 						<webrtc::SessionDescriptionInterface*> tce) {
-				webrtc::PeerConnectionInterface::RTCOfferAnswerOptions options;
 
 				rtc::CritScope lock(&_critSect);
 				if (_impl == nullptr) {
@@ -226,7 +246,21 @@ namespace Org {
 				// The callback is kept for the lifetime of the RTCPeerConnection.
 				_createSdpObservers.push_back(observer);
 
-				_impl->CreateOffer(observer, nullptr);
+				if(offerAnswerOptions == nullptr) {
+					_impl->CreateOffer(observer, nullptr);
+					return;
+				}
+
+				webrtc::PeerConnectionInterface::RTCOfferAnswerOptions options(
+					offerAnswerOptions->OfferToReceiveVideo,
+					offerAnswerOptions->OfferToReceiveAudio,
+					offerAnswerOptions->VoiceActivityDetection,
+					offerAnswerOptions->IceRestart,
+					offerAnswerOptions->UseRtpMux
+				);
+
+				_impl->CreateOffer(observer, options);
+
 			}, [](webrtc::SessionDescriptionInterface* sdi) {
 				RTCSessionDescription^ ret = nullptr;
 				ToCx(sdi, &ret);
