@@ -16,6 +16,7 @@
 #include <set>
 #include "PeerConnectionInterface.h"
 #include "Marshalling.h"
+#include "WebRtcMediaSource.h"
 #include "webrtc/rtc_base/logging.h"
 #include "webrtc/media/base/videosourceinterface.h"
 #include "webrtc/pc/channelmanager.h"
@@ -386,8 +387,11 @@ namespace Org {
 					_frameType = Internal::FrameTypeH264;
 
 				auto handler = ref new DispatchedHandler([this]() {
-					_mediaSource = Internal::RTMediaStreamSource::CreateMediaSource(_frameType, _id);
-					_mediaElement->SetMediaStreamSource(_mediaSource->GetMediaStreamSource());
+					Internal::WebRtcMediaSource::CreateMediaSource(&_mediaSource, _frameType, _id);
+					ComPtr<ABI::Windows::Media::Core::IMediaSource> comSource;
+					_mediaSource.As(&comSource);
+					IMediaSource^ source = reinterpret_cast<IMediaSource^>(comSource.Get());
+					_mediaElement->SetMediaStreamSource(source);
 				});
 
 				Windows::UI::Core::CoreDispatcher^ windowDispatcher =
@@ -535,13 +539,14 @@ namespace Org {
 			return asyncOp;
 		}
 
-		IMediaSource^ Media::CreateMediaStreamSource(String^ id) {
-			return globals::RunOnGlobalThread<MediaStreamSource^>([id]()->MediaStreamSource^ {
-				Internal::RTMediaStreamSource^ mediaSource =
-					Internal::RTMediaStreamSource::CreateMediaSource(Internal::VideoFrameType::FrameTypeH264, id);
-				return mediaSource->GetMediaStreamSource();
-			});
-		}
+		//IMediaSource^ Media::CreateMediaStreamSource(
+		//	MediaVideoTrack^ track, uint32 framerate, String^ id) {
+		//	return globals::RunOnGlobalThread<MediaStreamSource^>([track, framerate,
+		//		id]()->MediaStreamSource^ {
+		//		return Org::WebRtc::Internal::RTMediaStreamSource::
+		//			CreateMediaSource(track, framerate, id);
+		//	});
+		//}
 
 		void Media::AddVideoTrackMediaElementPair(MediaVideoTrack^ track, MediaElement^ mediaElement, String^ id) {
 			std::list<std::unique_ptr<VideoTrackMediaElementPair>>::iterator iter =
@@ -577,6 +582,16 @@ namespace Org {
 				iter++;
 			}
 		}
+
+		//IMediaSource^ Media::CreateMediaSource(
+		//	MediaVideoTrack^ track, String^ id) {
+		//	return globals::RunOnGlobalThread<IMediaSource^>([track, id]() -> IMediaSource^ {
+		//		ComPtr<ABI::Windows::Media::Core::IMediaSource> comSource;
+		//		Org::WebRtc::Internal::WebRtcMediaSource::CreateMediaSource(&comSource, Internal::FrameTypeI420, id);
+		//		IMediaSource^ source = reinterpret_cast<IMediaSource^>(comSource.Get());
+		//		return source;
+		//	});
+		//}
 
 		RawVideoSource^ Media::CreateRawVideoSource(MediaVideoTrack^ track) {
 			return ref new RawVideoSource(track);
