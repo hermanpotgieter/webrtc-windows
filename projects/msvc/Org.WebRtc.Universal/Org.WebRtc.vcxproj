@@ -197,6 +197,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <WindowsMetadataFile>$(OutDir)Org.WebRtc.winmd</WindowsMetadataFile>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\..\xplatform\webrtc\out\winuwp_10_$(PlatformTarget)_$(Configuration)\obj</AdditionalLibraryDirectories>
+      <AssemblyDebug>true</AssemblyDebug>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
@@ -380,6 +381,7 @@
       <TargetMachine>MachineX64</TargetMachine>
       <WindowsMetadataFile>$(OutDir)Org.WebRtc.winmd</WindowsMetadataFile>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\..\xplatform\webrtc\out\winuwp_10_$(PlatformTarget)_$(Configuration)\obj</AdditionalLibraryDirectories>
+      <AssemblyDebug>true</AssemblyDebug>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>

@@ -1,4 +1,3 @@
-
 // Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
 //
 // Use of this source code is governed by a BSD-style license
@@ -22,6 +21,12 @@ using Windows::Media::Core::MediaStreamSourceSampleRequest;
 
 namespace Org {
 	namespace WebRtc {
+		ref class MediaVideoTrack;
+	}
+}
+
+namespace Org {
+	namespace WebRtc {
 		namespace Internal {
 			ref class RTMediaStreamSource sealed {
 			public:
@@ -33,7 +38,7 @@ namespace Org {
 
 			internal:
 				static RTMediaStreamSource^ CreateMediaSource(
-					VideoFrameType frameType, String^ id);
+					MediaVideoTrack^ track, VideoFrameType frameType, String^ id);
 
 				MediaStreamSource^ GetMediaStreamSource();
 
@@ -58,7 +63,6 @@ namespace Org {
 
 				RTMediaStreamSource(VideoFrameType frameType);
 				void ProcessReceivedFrame(webrtc::VideoFrame *frame);
-				bool ConvertFrame(IMFMediaBuffer* mediaBuffer, webrtc::VideoFrame* frame);
 				void ResizeSource(uint32 width, uint32 height);
 
 				HRESULT MakeSampleCallback(webrtc::VideoFrame* frame, IMFSample** sample);
@@ -82,6 +86,8 @@ namespace Org {
 
 				Windows::Media::Core::VideoStreamDescriptor^ _videoDesc;
 
+				MediaVideoTrack^ _videoTrack;
+
 				void ReplyToSampleRequest();
 
 				MediaStreamSourceSampleRequest^ _request;
@@ -90,6 +96,8 @@ namespace Org {
 				Windows::Media::Core::MediaStreamSourceStartingEventArgs^ _startingArgs;
 
 				ULONG _frameBeingQueued;
+				ULONGLONG _startTick;
+				bool _videoSourceStarted;
 			};
 		}
 	}
